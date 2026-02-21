@@ -1,5 +1,5 @@
+#!/bin/bash
 echo -e "\n🚀 НАЧИНАЕМ: Установка, выпуск и импорт SSL для IP...\n"
-
 
 echo "📦 Шаг 1: Установка acme.sh..."
 cd ~
@@ -11,22 +11,15 @@ source ~/.acme.sh/acme.sh.env
 cd ~
 rm -rf ~/acme.sh-master ~/master.tar.gz
 
-
 IP=$(curl -s ipv4.icanhazip.com)
 echo "🌍 Шаг 2: Работаем с IP -> $IP"
 
-
-echo "🛑 Шаг 3: Останавливаем Nginx и запрашиваем сертификат..."
-synosystemctl stop nginx
+echo "🛑 Шаг 3: Запрашиваем сертификат без остановки Nginx (Webroot mode)..."
 ~/.acme.sh/acme.sh --issue -d "$IP" \
-  --standalone --httpport 80 \
+  --webroot /var/lib/letsencrypt \
   --server letsencrypt \
   --certificate-profile shortlived --force
 ISSUE_STATUS=$?
-
-
-echo "🟢 Запускаем Nginx обратно..."
-synosystemctl start nginx
 
 if [ $ISSUE_STATUS -eq 0 ]; then
     echo "✅ Шаг 4: Сертификат получен! Внедряем в систему..."
@@ -37,10 +30,7 @@ if [ $ISSUE_STATUS -eq 0 ]; then
     ~/.acme.sh/acme.sh --deploy -d "$IP" --deploy-hook synology_dsm
     
     if [ $? -eq 0 ]; then
-        echo -e "\n🎉 ГОТОВО! Сертификат установлен. Проверяй Панель управления DSM!"
+        echo -e "\n🎉 ГОТОВО! Сертификат установлен. Проверяй DSM!"
     else
         echo -e "\n❌ ОШИБКА: Сертификат получен, но не смог импортироваться в DSM."
     fi
-else
-    echo -e "\n❌ ОШИБКА: Let's Encrypt отказал в выдаче сертификата."
-fi

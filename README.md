@@ -1,6 +1,6 @@
 # Synology IP SSL Auto-Updater 🔐
 
-Этот скрипт автоматически получает, устанавливает и обновляет SSL-сертификат Let's Encrypt для **прямого IP-адреса** на Synology NAS. 
+Этот скрипт автоматически получает, устанавливает и обновляет SSL-сертификат Let's Encrypt для **прямого IP-адреса** на Synology NAS.
 
 Так как Let's Encrypt выдает сертификаты для IP (профиль `shortlived`) на очень короткий срок (около 7 дней), скрипт настроен на полную автоматизацию через системный планировщик задач (cron).
 
@@ -11,10 +11,12 @@
 Для запуска скрипта вам потребуется SSH-доступ к вашему Synology NAS.
 **Внимание:** Все команды должны выполняться строго от пользователя `root`!
 
-Чтобы запустить процесс получения и установки сертификата единоразово, просто выполните в терминале одну команду:
+Чтобы запустить процесс получения и установки сертификата единоразово, выполните в терминале:
 
 ```bash
-curl -sL [https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh) | bash
+sudo -i
+curl -sL https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh | bash
+
 ```
 
 *Скрипт сам скачает `acme.sh`, временно остановит Nginx для освобождения 80 порта, получит сертификат и импортирует его в базу DSM через встроенный API.*
@@ -25,11 +27,12 @@ curl -sL [https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-U
 
 Чтобы сертификат не протухал, необходимо добавить задачу в системный планировщик `cron`. Мы настроим запуск скрипта **каждые 6 дней в 03:00 ночи**.
 
-Выполните эту команду в терминале :
+Выполните эту команду в терминале:
 
 ```bash
-echo -e "0\t3\t*/6\t*\t*\troot\tcurl -sL [https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh) | bash >> /volume1/public/ssl_update.log 2>&1" >> /etc/crontab
+echo -e "0\t3\t*/6\t*\t*\troot\tcurl -sL https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh | bash >> /volume1/public/ssl_update.log 2>&1" >> /etc/crontab
 synosystemctl restart crond
+
 ```
 
 *Примечание: Логи обновлений будут сохраняться в файл `/volume1/public/ssl_update.log`. Убедитесь, что эта папка существует на вашем NAS, или измените путь в команде на свой.*
@@ -41,27 +44,33 @@ synosystemctl restart crond
 Если вы решили отказаться от сертификата для IP-адреса, выполните следующие шаги для полной очистки системы.
 
 ### 1. Удаление задачи из автозапуска
+
 Удаляем нашу строку из расписания `cron` и перезапускаем службу:
 
 ```bash
 sed -i '/syno_ip_ssl.sh/d' /etc/crontab
 synosystemctl restart crond
+
 ```
 
 ### 2. Очистка файловой системы
-Удаляем саму утилиту `acme.sh`, все скачанные ключи и убираем скрипт из автозагрузки профиля:
+
+Зайдите под `root` (`sudo -i`), удалите утилиту `acme.sh`, все скачанные ключи и уберите скрипт из автозагрузки профиля:
 
 ```bash
+sudo -i
 rm -rf ~/.acme.sh
 rm -rf /root/cert
 sed -i '/acme.sh/d' ~/.profile
+
 ```
 
 ### 3. Очистка в интерфейсе DSM
+
 Скрипты удалены, осталось навести порядок в веб-интерфейсе:
+
 1. Зайдите в **Панель управления -> Безопасность -> Сертификат**.
 2. Выделите ваш основной сертификат (например, для домена) и нажмите **Действие -> Сделать сертификатом по умолчанию**.
 3. Выделите сертификат, выданный для вашего IP-адреса, и нажмите **Удалить**.
 
-Система полностью возвращена в исходное состояние!
 Система полностью возвращена в исходное состояние!

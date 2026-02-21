@@ -2,7 +2,7 @@
 
 Этот скрипт автоматически получает, устанавливает и обновляет SSL-сертификат Let's Encrypt для **прямого IP-адреса** на Synology NAS. 
 
-Так как Let's Encrypt выдает сертификаты для IP (профиль `shortlived`) на очень короткий срок (около 10 дней), скрипт настроен на полную автоматизацию через системный планировщик задач (cron).
+Так как Let's Encrypt выдает сертификаты для IP (профиль `shortlived`) на очень короткий срок (около 7 дней), скрипт настроен на полную автоматизацию через системный планировщик задач (cron).
 
 ---
 
@@ -14,21 +14,21 @@
 Чтобы запустить процесс получения и установки сертификата единоразово, просто выполните в терминале одну команду:
 
 ```bash
-curl -sL [https://raw.githubusercontent.com/LocalHost-hub/sino_ipssl/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/sino_ipssl/main/syno_ip_ssl.sh) | bash
+curl -sL [https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh) | bash
 ```
 
-*Скрипт сам скачает `acme.sh`, временно остановит Nginx для освобождения 80 порта, получит сертификат и импортирует его в базу DSM через API.*
+*Скрипт сам скачает `acme.sh`, временно остановит Nginx для освобождения 80 порта, получит сертификат и импортирует его в базу DSM через встроенный API.*
 
 ---
 
 ## ⏱ Автоматизация и Обновление (Cron)
 
-Чтобы сертификат не протухал, необходимо добавить задачу в системный планировщик `cron`. Запуск скрипта **каждые 6 дней в 03:00 ночи**.
+Чтобы сертификат не протухал, необходимо добавить задачу в системный планировщик `cron`. Мы настроим запуск скрипта **каждые 6 дней в 03:00 ночи**.
 
-Выполните эту команду в терминале (она сама добавит нужную строку с правильными отступами (Tab) и перезапустит службу планировщика):
+Выполните эту команду в терминале :
 
 ```bash
-echo -e "0\t3\t*/6\t*\t*\troot\tcurl -sL [https://raw.githubusercontent.com/LocalHost-hub/sino_ipssl/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/sino_ipssl/main/syno_ip_ssl.sh) | bash >> /volume1/public/ssl_update.log 2>&1" >> /etc/crontab
+echo -e "0\t3\t*/6\t*\t*\troot\tcurl -sL [https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh](https://raw.githubusercontent.com/LocalHost-hub/Synology-IP-SSL-Auto-Updater/main/syno_ip_ssl.sh) | bash >> /volume1/public/ssl_update.log 2>&1" >> /etc/crontab
 synosystemctl restart crond
 ```
 
@@ -63,4 +63,5 @@ sed -i '/acme.sh/d' ~/.profile
 2. Выделите ваш основной сертификат (например, для домена) и нажмите **Действие -> Сделать сертификатом по умолчанию**.
 3. Выделите сертификат, выданный для вашего IP-адреса, и нажмите **Удалить**.
 
+Система полностью возвращена в исходное состояние!
 Система полностью возвращена в исходное состояние!

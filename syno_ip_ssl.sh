@@ -34,3 +34,4 @@ if [ $ISSUE_STATUS -eq 0 ]; then
     else
         echo -e "\n❌ ОШИБКА: Сертификат получен, но не смог импортироваться в DSM."
     fi
+fi

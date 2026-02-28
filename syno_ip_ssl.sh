@@ -14,7 +14,7 @@ rm -rf ~/acme.sh-master ~/master.tar.gz
 IP=$(curl -s ipv4.icanhazip.com)
 echo "🌍 Шаг 2: Работаем с IP -> $IP"
 
-echo "🛑 Шаг 3: Запрашиваем сертификат без остановки Nginx (Webroot mode)..."
+echo "🛑 Шаг 3: Запрашиваем сертификат (Webroot mode)..."
 ~/.acme.sh/acme.sh --issue -d "$IP" \
   --webroot /var/lib/letsencrypt \
   --server letsencrypt \
@@ -30,7 +30,7 @@ if [ $ISSUE_STATUS -eq 0 ]; then
     ~/.acme.sh/acme.sh --deploy -d "$IP" --deploy-hook synology_dsm
     
     if [ $? -eq 0 ]; then
-        echo -e "\n🎉 ГОТОВО! Сертификат установлен. Проверяй DSM!"
+        echo -e "\n🎉 ГОТОВО! Сертификат установлен."
     else
         echo -e "\n❌ ОШИБКА: Сертификат получен, но не смог импортироваться в DSM."
     fi
